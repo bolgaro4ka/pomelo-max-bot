@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from keyboards import START_APP_KEYBOARD
+from keyboards import open_link_button_keyboard
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,6 +36,16 @@ async def start(event: MessageCreated):
     """
     await event.message.answer(
         text="Привет, я бот Pomelo.",
+    )
+
+@dp.message_created(Command("link"))
+async def link(event: MessageCreated):
+    """
+    Обработчик команды /link 
+    """
+    await event.message.answer(
+        text="Привет, я бот Pomelo.",
+        attachments=[open_link_button_keyboard({'sigma': 'https://blgr.space'}).as_markup()]
     )
 
 @dp.message_created(F.message.body.text)

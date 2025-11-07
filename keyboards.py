@@ -1,11 +1,15 @@
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
-from maxapi.types import OpenAppButton
+from maxapi.types import OpenAppButton, LinkButton
 
 # Keyboard with 1 btn to open mini-app
-START_APP_KEYBOARD : InlineKeyboardBuilder = InlineKeyboardBuilder().row(
-        OpenAppButton(
-            text="Pomelo",
-            web_app="pomelo_bot",
-            contact_id=77777777
-        ),
-    )
+def open_link_button_keyboard(links: dict[str, str]) -> InlineKeyboardBuilder:
+    builder = InlineKeyboardBuilder()
+    for name, link in links.items():
+        builder.row(
+            LinkButton(
+                text=name,
+                url=link
+            )
+        )
+        
+    return builder
