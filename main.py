@@ -3,7 +3,7 @@ import asyncio
 import logging
 
 from maxapi import Bot, Dispatcher, F
-from maxapi.types import MessageCreated
+from maxapi.types import BotStarted, MessageCreated
 from maxapi.filters.command import Command
 
 import os
@@ -17,6 +17,17 @@ logging.basicConfig(level=logging.INFO)
 
 bot : Bot = Bot(str(os.getenv('API_KEY')))
 dp : Dispatcher = Dispatcher()
+
+
+@dp.bot_started()
+async def bot_started(event: BotStarted):
+    """
+    При нажатии на кнопку старт
+    """
+    await event.bot.send_message(
+        chat_id=event.chat_id,
+        text='Привет! Отправь мне /start'
+    )
 
 @dp.message_created(Command("start"))
 async def start(event: MessageCreated):
