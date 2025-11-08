@@ -55,7 +55,6 @@ async def image(event: MessageCreated):
     Обработчик изображений
     """
     image = event.message.body.attachments[0].payload.url
-    await event.message.answer(str(image))
 
     scan_id=json.loads(pomelo.send_scan(image).content)["scan"]["id"]
     bot_message = await event.bot.send_message(chat_id=event.chat.chat_id, text="Скан запущен! Ожидаем...")
