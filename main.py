@@ -6,6 +6,7 @@ from maxapi import Bot, Dispatcher, F
 from maxapi.types import BotStarted, MessageCreated
 from maxapi.types import InputMedia
 from maxapi.filters.command import Command
+from maxapi.enums.parse_mode import ParseMode
 
 import os
 
@@ -13,7 +14,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from keyboards import open_link_button_keyboard
-from messages import HELLO_MSG
+from messages import HELLO_MSG, get_scan_msg
+from test_responses import SCAN_RESPONSE
+from functions import get_scan_links
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,6 +41,25 @@ async def start(event: MessageCreated):
     """
     await event.message.answer(
         text=HELLO_MSG,
+    )
+
+@dp.message_created(Command("scan"))
+async def scan(event: MessageCreated):
+    """
+    Обработчик команды /scan
+    """
+    await event.message.answer(
+        text=get_scan_msg(SCAN_RESPONSE)[0],
+        parse_mode=ParseMode.MARKDOWN,
+        attachments=[
+            open_link_button_keyboard(get_scan_links(SCAN_RESPONSE)).as_markup(),
+            InputMedia('./media/hamster.gif')
+        ]
+    )
+
+    await event.message.answer(
+        text=get_scan_msg(SCAN_RESPONSE)[1],
+        parse_mode=ParseMode.MARKDOWN,
     )
 
 @dp.message_created(Command("link"))
