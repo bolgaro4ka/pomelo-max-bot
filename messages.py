@@ -10,7 +10,11 @@ HELLO_MSG = """**Привет 👋 Я — бот Pomelo 🍋**
 📸 Отправь текст или фото состава, чтобы получить детальный анализ"""
 
 def get_scan_msg(scan_response: dict) -> list[str]:
+    flag=False
+    for item in scan_response["analysis"]["ingredients"]:
+        if item["referenceUrl"]:
+            flag=True
     return [
-        f"**{scan_response["name"]}**\n\nАллергены\n{'\n'.join(['* ' + l[0].upper() + l[1:] for l in scan_response["analysis"]["allergens"]])}\n\n**AI анализ**\n{scan_response['aiAnalysis']}\n\n**Добавки**",
+        f"**{scan_response["name"]}**\n\n**Аллергены**\n{'\n'.join(['* ' + l[0].upper() + l[1:] for l in scan_response["analysis"]["allergens"]])}\n\n**AI анализ**\n{scan_response['aiAnalysis']}\n\n{'**Добавки**' if flag else ''}",
         f"**Состав:**\n{scan_response["composition"]}\n\n_Анализ основани на данных с сайта Добавкам.нет и не является индивидуальной медицинской рекомендацией_"
     ]
