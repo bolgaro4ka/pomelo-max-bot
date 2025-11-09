@@ -57,8 +57,9 @@ class ScanEntity:
 
         for ingredient in self.ingredients:
             url = ingredient.get("referenceUrl")
-            # if not url:
-            #     continue
+            # Skip ingredients without URL
+            if not url:
+                continue
 
             name = ingredient.get("name", "Без названия")
             danger = ingredient.get("danger", -1)

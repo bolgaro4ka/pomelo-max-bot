@@ -67,6 +67,37 @@ HELP_MSG = """**🕹 Список команд**
 
 SCANNER_MSG = """**📸 Отправь текст или фото состава, чтобы получить детальный анализ**"""
 
+def get_progress_bar_msg(status: str) -> str:
+    """
+    Generate progress bar based on scan status
+    """
+
+    # Define progress stages
+    stages = {
+        'recognition_pending': (1, '⏳ В очереди'),
+        'recognizing': (2, '🔍 Распознавание состава'),
+        'recognized': (3, '👁 Состав распознан'),
+        'analysis_pending': (4, '⏳ Ожидание анализа'),
+        'analyzing': (5, '🧪 Анализ ингредиентов'),
+        'analyzed': (6, '✅ Анализ завершен'),
+        'completed': (7, '🎉 Готово!')
+    }
+
+    if status not in stages:
+        return f"❓ Неизвестный статус: {status}"
+
+    current_step, status_text = stages[status]
+    total_steps = 7
+
+    # Build progress bar
+    filled = '🟩' * current_step
+    empty = '⬜️' * (total_steps - current_step)
+    percentage = int((current_step / total_steps) * 100)
+
+    progress_bar = f"{filled}{empty} {percentage}%\n{status_text}"
+
+    return progress_bar
+
 def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
     """
     Generate a list of messages representing the scan result.

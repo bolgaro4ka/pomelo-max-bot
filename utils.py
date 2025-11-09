@@ -83,16 +83,3 @@ def get_adi_image_path(scan_entity: ScanEntity, folder: str = "adi_cache") -> st
 
     # Return file path
     return file_path
-
-
-def get_scan_links(scan_entity: ScanEntity) -> dict[str, str]:
-    """
-    Generate a dictionary of links based on the ingredient buttons from ScanEntity.
-
-    Parameters:
-        scan_entity (ScanEntity): The scan entity containing ingredient information.
-
-    Returns:
-        dict[str, str]: A dictionary mapping button text to ingredient URLs.
-    """
-    return scan_entity.get_ingredient_buttons()
