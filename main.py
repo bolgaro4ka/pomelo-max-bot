@@ -1,29 +1,10 @@
-"""
-Main module
-
-This module contains the main entry point of the Pomelo bot.
-
-Responsible for:
-- Initializing the bot and dispatcher
-- Registering all handlers
-- Starting the polling process
-
-By Bolgaro4ka / 2025
-
-"""
-
-# Build-in modules
 import asyncio
 import logging
 import os
 
-# External modules
 from dotenv import load_dotenv
-
-# Max API
 from maxapi import Bot, Dispatcher
 
-# Internal modules
 from bot import register_all_handlers
 
 # Load environment variables

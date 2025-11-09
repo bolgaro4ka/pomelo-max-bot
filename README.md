@@ -22,7 +22,7 @@ cd pomelo-max-bot
 2. Copy `.env.example` to `.env` and fill in the necessary environment variables.
 You can request secret keys from @ColorKat.
 
-3. **Development mode:**
+3. **Development mode (with hot reload):**
 ```bash
 docker compose up --build
 ```

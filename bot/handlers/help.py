@@ -1,16 +1,8 @@
-"""
-Help command handler
-
-This module contains handler for /help command.
-
-By Bolgaro4ka / 2025
-"""
-
 from maxapi.types import MessageCreated
 from maxapi.filters.command import Command
 from maxapi.enums.parse_mode import ParseMode
 
-import messages
+from bot import messages
 
 
 def register_help_handlers(dp):

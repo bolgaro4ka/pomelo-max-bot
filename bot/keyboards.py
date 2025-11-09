@@ -1,16 +1,3 @@
-"""
-Keyboards module
-
-This module contains functions used in the Pomelo bot for generating keyboards.
-
-Contains functions for:
-
-- Generating a keyboard with open link buttons based on the provided dictionary of links.
-
-By Bolgaro4ka / 2025
-
-"""
-
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 from maxapi.types import LinkButton
 

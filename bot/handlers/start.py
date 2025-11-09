@@ -1,16 +1,8 @@
-"""
-Start command handlers
-
-This module contains handlers for bot start events and /start command.
-
-By Bolgaro4ka / 2025
-"""
-
 from maxapi.types import BotStarted, MessageCreated
 from maxapi.filters.command import Command
 from maxapi.enums.parse_mode import ParseMode
 
-import messages
+from bot import messages
 
 
 def register_start_handlers(dp):

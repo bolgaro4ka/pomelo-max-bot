@@ -1,24 +1,14 @@
-"""
-Scanner handlers
-
-This module contains handlers for scanning functionality:
-- Photo scanning
-- Text scanning
-- Scan tracking and result display
-
-By Bolgaro4ka / 2025
-"""
-
 from maxapi import F
 from maxapi.types import MessageCreated, InputMedia
 from maxapi.filters.command import Command
 from maxapi.enums.parse_mode import ParseMode
 
-import messages
+from bot import messages
+from bot.keyboards import open_link_button_keyboard
+from bot.helpers import send_or_edit_message
 from services.pomelo_service import PomeloService
 from services.scan_tracker import ScanTracker
-from keyboards import open_link_button_keyboard
-from utils import get_adi_image_path, send_or_edit_message
+from utils import get_adi_image_path
 
 
 # Create Pomelo service
@@ -136,3 +126,4 @@ async def _track_scan(event: MessageCreated, scan_id: str) -> None:
         on_error=on_error
     ):
         await event.message.answer(text="Сканирование уже идёт. Пожалуйста, подождите.")
+

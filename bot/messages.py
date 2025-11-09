@@ -1,21 +1,3 @@
-"""
-This module contains functions used in the Pomelo bot for generating messages.
-
-Consains consts:
-
-- HELLO_MSG - A string representing the initial message sent to the user when the bot is started.
-- ABOUT_MSG - A string representing the about message.
-- DISCLAIMER_MSG - A string representing the disclaimer message.
-- HELP_MSG - A string representing the help message.
-
-Contains functions for:
-
-- Generating a list of two strings representing the scan response information.
-
-By Bolgaro4ka / 2025
-
-"""
-
 from entities.scan_entity import ScanEntity
 
 
