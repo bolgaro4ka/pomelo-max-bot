@@ -8,14 +8,12 @@ Contains functions for:
 - Fetching and showing a scan result for a given scan ID
 - Listening to SSE updates for a scan with the given scan ID and retrieving the scan result when the scan is fully completed
 
-By Bolgaro4ka / 2025
 """
 
-from pomelo_service import PomeloService
-import sse_listener
+from services.pomelo_service import PomeloService
 from keyboards import open_link_button_keyboard
 from messages import get_scan_msg
-from functions import get_scan_links, get_adi_image_path
+from utils import get_scan_links, get_adi_image_path
 from maxapi.types import InputMedia, MessageCreated
 import asyncio
 from maxapi.enums.parse_mode import ParseMode
@@ -40,57 +38,81 @@ async def fetch_and_show_scan(event: MessageCreated, scan_id: str, active_scans:
     # Save message id
     msg_id = bot_message.message.body.mid
 
-    async def get_scan_result(scan_id):
-        """Получение результата скана и обновление сообщения"""
-        # If scan is completed and aiAnalysis is not null -> edit previous message
-        await event.bot.edit_message(message_id=msg_id, text = f"Скан {scan_id} завершён. Загружаю результат...")
-        res = await pomelo_service.getScanResult(scan_id)
-        SCAN_RESPONSE = res["scan"]
+    async def on_status_update(status: str):
+        """Обработка обновления статуса скана"""
+        print(f"Обработка статуса: {status}")
 
-        # If scan is not fully completed
-        if not sse_listener.is_scan_fully_completed(SCAN_RESPONSE):
-            print("Скан почти завершён, осталось только подождать AI анализ...")
-            return  # Wait for next sse event
+        # If error occurred
+        if status in ("failed", "analysis_failed", "recognition_failed"):
+            await event.bot.edit_message(message_id=msg_id, text=f"Ошибка скана: {status}")
 
-        # Links in response scan object
-        links=get_scan_links(SCAN_RESPONSE)
+            # Remove from active scans
+            user_id = str(event.from_user.user_id)
+            if user_id in active_scans:
+                active_scans.remove(user_id)
 
-        # Buttons
-        attachments = [InputMedia(get_adi_image_path(SCAN_RESPONSE))]
+            # Unsubscribe from updates
+            pomelo_service.unsubscribeFromStatusUpdates(scan_id)
+            return
 
-        # If links exists -> add buttons
-        if links:
-            attachments.append(open_link_button_keyboard(links).as_markup())
+        # If status is completed or ai_analysis_completed - refetch scan
+        if status in ("completed", "ai_analysis_completed"):
+            # Fetch the actual scan result
+            scan_entity = await pomelo_service.getScanResult(scan_id)
 
-        # Edit previous message
-        await event.bot.edit_message(
-            message_id=msg_id,
-            text=get_scan_msg(SCAN_RESPONSE)[0],
-            parse_mode=ParseMode.MARKDOWN,
-            attachments=attachments
-        )
+            # If scan is not fully completed yet, wait for next update
+            if not scan_entity.is_fully_completed():
+                print("Скан почти завершён, осталось только подождать AI анализ...")
+                return
 
-        # Send message with components
-        await event.message.answer(
-            text=get_scan_msg(SCAN_RESPONSE)[1],
-            parse_mode=ParseMode.MARKDOWN,
-        )
+            # Scan is fully completed - update message with results
+            await event.bot.edit_message(message_id=msg_id, text=f"Скан {scan_id} завершён. Загружаю результат...")
+
+            # Links in response scan object
+            links = get_scan_links(scan_entity)
+
+            # Buttons
+            attachments = [InputMedia(get_adi_image_path(scan_entity))]
+
+            # If links exists -> add buttons
+            if links:
+                attachments.append(open_link_button_keyboard(links).as_markup())
+
+            # Edit previous message
+            await event.bot.edit_message(
+                message_id=msg_id,
+                text=get_scan_msg(scan_entity)[0],
+                parse_mode=ParseMode.MARKDOWN,
+                attachments=attachments
+            )
+
+            # Send message with components
+            await event.message.answer(
+                text=get_scan_msg(scan_entity)[1],
+                parse_mode=ParseMode.MARKDOWN,
+            )
+
+            # Remove from active scans
+            user_id = str(event.from_user.user_id)
+            if user_id in active_scans:
+                active_scans.remove(user_id)
+
+            # Unsubscribe from updates
+            pomelo_service.unsubscribeFromStatusUpdates(scan_id)
+
+    async def on_error(error: str) -> None:
+        """Обработка ошибки подключения SSE"""
+        await event.bot.edit_message(message_id=msg_id, text=f"Ошибка подключения: {error}")
 
         # Remove from active scans
         user_id = str(event.from_user.user_id)
         if user_id in active_scans:
             active_scans.remove(user_id)
 
-    async def on_error(error) -> None:
-        """Обработка ошибки скана"""
-        await event.bot.edit_message(message_id=msg_id, text = f"Ошибка скана: {error}")
+        # Unsubscribe from updates
+        pomelo_service.unsubscribeFromStatusUpdates(scan_id)
 
-        # Remove from active scans
-        user_id = str(event.from_user.user_id)
-        if user_id in active_scans:
-            active_scans.remove(user_id)
-
-    # Start SSE in background
+    # Subscribe to scan status updates via PomeloService
     asyncio.create_task(
-        sse_listener.listen_scan_updates(scan_id, get_scan_result, on_error)
+        pomelo_service.subscribeScanStatusUpdate(scan_id, on_status_update, on_error)
     )

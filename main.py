@@ -27,7 +27,7 @@ from maxapi.enums.parse_mode import ParseMode
 
 # Internal modules
 import messages
-from pomelo_service import PomeloService
+from services.pomelo_service import PomeloService
 import handlers
 
 # Load environment variables
@@ -107,28 +107,28 @@ async def menu(event: MessageCreated) -> None:
     )
 
 @dp.message_created(F.message.body.attachments)
-async def image(event: MessageCreated) -> None:
+async def createPhotoScan(event: MessageCreated) -> None:
     """Image handler"""
     # Get image from user message (if image > 1, take the first one)
     image = event.message.body.attachments[0].payload.url
 
     # Send image scan to Pomelo API
-    res = await pomelo_service.createPhotoScan(image)
-    scan_id = res["scan"]["id"]
+    scan_entity = await pomelo_service.createPhotoScan(image)
+    scan_id = scan_entity.id
 
     # Fetch and show scan
     await handlers.fetch_and_show_scan(event, scan_id, active_scans, pomelo_service)
 
 
 @dp.message_created(F.message.body.text)
-async def echo(event: MessageCreated) -> None:
+async def createTextScan(event: MessageCreated) -> None:
     """Text handler"""
     # Get text from user
     text = event.message.body.text
 
     # Send text scan to Pomelo API
-    res = await pomelo_service.createTextScan(text)
-    scan_id = res["scan"]["id"]
+    scan_entity = await pomelo_service.createTextScan(text)
+    scan_id = scan_entity.id
 
     # Fetch and show scan
     await handlers.fetch_and_show_scan(event, scan_id, active_scans, pomelo_service)

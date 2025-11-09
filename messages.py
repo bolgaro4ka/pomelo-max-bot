@@ -16,6 +16,7 @@ By Bolgaro4ka / 2025
 
 """
 
+from entities.scan_entity import ScanEntity
 
 
 HELLO_MSG = """**Привет 👋 Я — бот Pomelo 🍋**
@@ -66,27 +67,26 @@ HELP_MSG = """**🕹 Список команд**
 
 SCANNER_MSG = """**📸 Отправь текст или фото состава, чтобы получить детальный анализ**"""
 
-def get_scan_msg(scan_result: dict) -> list[str]:
+def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
     """
-    Generate a list of two strings representing the scan response information.
-
-    Args:
-        scan_result (dict): The scan response containing the analysis information.
-
-    Returns:
-        list[str]: A list of two strings. The first string contains the name, allergens, AI analysis, and additives information. The second string contains the composition and a disclaimer.
-
-    This function takes a scan response dictionary as input and generates two strings representing the scan response information. The first string includes the name, allergens, AI analysis, and additives information. The second string includes the composition and a disclaimer. The function iterates over the ingredients in the scan response and checks if any of them have a reference URL. If a reference URL is found, the flag variable is set to True. The function then constructs the two strings using the information from the scan response dictionary.
+    Generate a list of messages representing the scan result.
     """
 
     # Check if at least one link exists
     AT_LEAST_ONE_LINK_EXISTS_FLAG = False
-    for item in scan_result["analysis"]["ingredients"]:
-        if item["referenceUrl"]:
+    for ingredient in scan_entity.ingredients:
+        if ingredient.get("referenceUrl"):
             AT_LEAST_ONE_LINK_EXISTS_FLAG = True
+            break
+
+    # Get data from entity
+    name = scan_entity._data.get("name", "Без названия")
+    allergens = scan_entity._data.get("analysis", {}).get("allergens", [])
+    ai_analysis = scan_entity.ai_analysis or "Анализ не выполнен"
+    composition = scan_entity._data.get("composition", "Состав не указан")
 
     # Return two strings
     return [
-        f"**{scan_result["name"]}**\n\n**Аллергены**\n{'\n'.join(['* ' + l[0].upper() + l[1:] for l in scan_result["analysis"]["allergens"]])}\n\n**AI анализ**\n{scan_result['aiAnalysis']}\n\n{'**Добавки**' if AT_LEAST_ONE_LINK_EXISTS_FLAG else ''}",
-        f"**Состав:**\n{scan_result["composition"]}"
+        f"**{name}**\n\n**Аллергены**\n{'\n'.join(['* ' + l[0].upper() + l[1:] for l in allergens]) if allergens else 'Нет данных'}\n\n**AI анализ**\n{ai_analysis}\n\n{'**Добавки**' if AT_LEAST_ONE_LINK_EXISTS_FLAG else ''}",
+        f"**Состав:**\n{composition}"
     ]
