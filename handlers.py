@@ -22,7 +22,7 @@ import asyncio
 from maxapi.enums.parse_mode import ParseMode
 
 
-async def fetch_and_show_scan(event : MessageCreated, scan_id: str):
+async def fetch_and_show_scan(event : MessageCreated, scan_id: str, active_scans : list[str]) -> None:
     """
     Asynchronously fetches and shows a scan result for a given scan ID.
 
@@ -51,6 +51,12 @@ async def fetch_and_show_scan(event : MessageCreated, scan_id: str):
 
     # Save message id
     msg_id = bot_message.message.body.mid
+
+    if str(event.from_user.user_id) in active_scans:
+        await event.message.answer(
+            text="Скан уже идёт. Пожалуйста, подождите."
+        )
+        return
     
     async def get_scan_result(scan_id):
         """
@@ -95,6 +101,9 @@ async def fetch_and_show_scan(event : MessageCreated, scan_id: str):
             parse_mode=ParseMode.MARKDOWN,
         )
 
+        # Remove from active scans
+        active_scans.remove(str(event.from_user.user_id))
+
     async def on_error(error) -> None:
         """
         Handle the error that occurred during the scan.
@@ -106,6 +115,9 @@ async def fetch_and_show_scan(event : MessageCreated, scan_id: str):
             None
         """
         await event.bot.edit_message(message_id=msg_id, text = f"Ошибка скана: {error}")
+
+        # Remove from active scans
+        active_scans.remove(str(event.from_user.user_id))
 
     # Start SSE in background
     asyncio.create_task(

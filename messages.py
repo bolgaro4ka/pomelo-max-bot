@@ -4,6 +4,9 @@ This module contains functions used in the Pomelo bot for generating messages.
 Consains consts:
 
 - HELLO_MSG - A string representing the initial message sent to the user when the bot is started.
+- ABOUT_MSG - A string representing the about message.
+- DISCLAIMER_MSG - A string representing the disclaimer message.
+- HELP_MSG - A string representing the help message.
 
 Contains functions for:
 
@@ -24,6 +27,20 @@ HELLO_MSG = """**Привет 👋 Я — бот Pomelo 🍋**
 - Предупреждаю о наличии аллергенов
 
 📸 Отправь текст или фото состава, чтобы получить детальный анализ"""
+
+ABOUT_MSG = """**О помеле**
+
+"""
+
+DISCLAIMER_MSG = """**О помеле disclaimer**
+
+"""
+
+HELP_MSG = """**О помеле help**
+
+"""
+
+SCANNER_MSG = """**📸 Отправь текст или фото состава, чтобы получить детальный анализ**"""
 
 def get_scan_msg(scan_response: dict) -> list[str]:
     """

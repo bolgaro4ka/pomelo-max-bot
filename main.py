@@ -27,8 +27,7 @@ from maxapi.filters.command import Command
 from maxapi.enums.parse_mode import ParseMode
 
 # Internal modules
-from messages import HELLO_MSG
-
+import messages
 import pomelo
 import handlers
 
@@ -42,16 +41,16 @@ logging.basicConfig(level=logging.INFO)
 bot : Bot = Bot(str(os.getenv('API_KEY')))
 dp : Dispatcher = Dispatcher()
 
+active_scans = []  # user_id -> scan in progress
 
 @dp.bot_started()
 async def bot_started(event: BotStarted) -> None:
     """
     If user clicks start button
     """
-
-    # Just send hello message
-    await event.message.answer(
-        text=HELLO_MSG,
+    await event.bot.send_message(
+        chat_id=event.chat.chat_id, 
+        text=messages.HELLO_MSG,
         parse_mode=ParseMode.MARKDOWN
     )
 
@@ -60,22 +59,50 @@ async def start(event: MessageCreated) -> None:
     """
     Handles /start command
     """
-    # Just send hello message
     await event.message.answer(
-        text=HELLO_MSG,
+        text=messages.HELLO_MSG,
         parse_mode=ParseMode.MARKDOWN
     )
 
-@dp.message_created(Command("menu"))
+@dp.message_created(Command("about"))
 async def menu(event: MessageCreated) -> None:
     """
-    Handles /menu command
+    Handles /about command
     """
     await event.message.answer(
-        text=HELLO_MSG,
+        text=messages.ABOUT_MSG,
         parse_mode=ParseMode.MARKDOWN
     )
 
+@dp.message_created(Command("help"))
+async def menu(event: MessageCreated) -> None:
+    """
+    Handles /help command
+    """
+    await event.message.answer(
+        text=messages.HELP_MSG,
+        parse_mode=ParseMode.MARKDOWN
+    )
+
+@dp.message_created(Command("disclaimer"))
+async def menu(event: MessageCreated) -> None:
+    """
+    Handles /disclaimer command
+    """
+    await event.message.answer(
+        text=messages.DISCLAIMER_MSG,
+        parse_mode=ParseMode.MARKDOWN
+    )
+
+@dp.message_created(Command("scanner"))
+async def menu(event: MessageCreated) -> None:
+    """
+    Handles /scanner command
+    """
+    await event.message.answer(
+        text=messages.SCANNER_MSG,
+        parse_mode=ParseMode.MARKDOWN
+    )
 
 @dp.message_created(F.message.body.attachments)
 async def image(event: MessageCreated) -> None:
@@ -89,7 +116,7 @@ async def image(event: MessageCreated) -> None:
     scan_id=json.loads(pomelo.send_scan(image).content)["scan"]["id"]
 
     # Fetch and show scan
-    await handlers.fetch_and_show_scan(event, scan_id)
+    await handlers.fetch_and_show_scan(event, scan_id, active_scans)
 
 
 @dp.message_created(F.message.body.text)
@@ -104,7 +131,7 @@ async def echo(event: MessageCreated) -> None:
     scan_id=json.loads(pomelo.send_text(text).content)["scan"]["id"]
 
     # Fetch and show scan
-    await handlers.fetch_and_show_scan(event, scan_id)
+    await handlers.fetch_and_show_scan(event, scan_id, active_scans)
 
 
 async def main() -> None:
