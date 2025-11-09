@@ -1,0 +1,10 @@
+services:
+  max-bot:
+    container_name: max-bot
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/app
+    env_file:
+      - .env

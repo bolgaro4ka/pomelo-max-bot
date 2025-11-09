@@ -11,10 +11,10 @@ class PomeloService:
     """
     def __init__(self):
         self.base_url = 'https://pomelo.colorbit.ru'
-        self.token = os.getenv("API_POMELO")
+        self.token = os.getenv("POMELO_API_TOKEN")
 
         if not self.token:
-            raise ValueError("API token is required. Provide it via constructor or API_POMELO env variable.")
+            raise ValueError("API token is required. Provide it in POMELO_API_TOKEN env variable.")
 
     async def _request(
         self,

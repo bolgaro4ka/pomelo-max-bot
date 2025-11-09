@@ -1,0 +1,16 @@
+FROM python:3.14-slim
+
+WORKDIR /app
+
+RUN pip install watchfiles
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Set env var to ensure logs are visible in real-time
+ENV PYTHONUNBUFFERED=1
+
+# Command to run the application with auto-reload
+CMD ["watchfiles", "--filter", "python", "python main.py", "."]

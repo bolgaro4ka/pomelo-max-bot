@@ -1,0 +1,9 @@
+services:
+  max-bot:
+    container_name: max-bot
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
