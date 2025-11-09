@@ -11,8 +11,7 @@ Contains functions for:
 By Bolgaro4ka / 2025
 """
 
-import json
-import pomelo
+from pomelo_service import PomeloService
 import sse_listener
 from keyboards import open_link_button_keyboard
 from messages import get_scan_msg
@@ -22,30 +21,8 @@ import asyncio
 from maxapi.enums.parse_mode import ParseMode
 
 
-async def fetch_and_show_scan(event : MessageCreated, scan_id: str, active_scans : list[str]) -> None:
-    """
-    Asynchronously fetches and shows a scan result for a given scan ID.
-
-    Parameters:
-        event (MessageCreated): The event object representing the message creation.
-        scan_id (str): The ID of the scan.
-
-    Returns:
-        None
-
-    This function starts a scan by sending a message with the text "Скан запущен! Ожидаем..." to the chat.
-    It then saves the message ID and defines two nested functions: `get_scan_result` and `on_error`.
-    `get_scan_result` retrieves the scan result for the given scan ID and updates the message with the result.
-    It checks if the scan is fully completed and if not, it waits for the next SSE event.
-    If the scan is completed, it retrieves the links and attachments from the scan response,
-    and edits the previous message with the new text, parse mode, and attachments.
-    It also sends a message with components.
-    `on_error` handles the error that occurred during the scan by editing the previous message with the error text.
-
-    This function also creates a task to listen for SSE updates in the background using the `sse_listener.listen_scan_updates` function.
-
-    Note: The `get_scan_result` and `on_error` functions are defined within this function and are not accessible outside of it.
-    """
+async def fetch_and_show_scan(event: MessageCreated, scan_id: str, active_scans: list[str], pomelo_service: PomeloService) -> None:
+    """Получение и отображение результата скана"""
 
     # Check if scan is already in progress
     if str(event.from_user.user_id) in active_scans:
@@ -64,18 +41,10 @@ async def fetch_and_show_scan(event : MessageCreated, scan_id: str, active_scans
     msg_id = bot_message.message.body.mid
 
     async def get_scan_result(scan_id):
-        """
-        Asynchronously retrieves the scan result for a given scan ID and updates the message with the result.
-
-        Parameters:
-            scan_id (str): The ID of the scan.
-
-        Returns:
-            None
-        """
+        """Получение результата скана и обновление сообщения"""
         # If scan is completed and aiAnalysis is not null -> edit previous message
         await event.bot.edit_message(message_id=msg_id, text = f"Скан {scan_id} завершён. Загружаю результат...")
-        res = await pomelo.get_scan(scan_id)
+        res = await pomelo_service.getScanResult(scan_id)
         SCAN_RESPONSE = res["scan"]
 
         # If scan is not fully completed
@@ -108,22 +77,18 @@ async def fetch_and_show_scan(event : MessageCreated, scan_id: str, active_scans
         )
 
         # Remove from active scans
-        active_scans.remove(str(event.from_user.user_id))
+        user_id = str(event.from_user.user_id)
+        if user_id in active_scans:
+            active_scans.remove(user_id)
 
     async def on_error(error) -> None:
-        """
-        Handle the error that occurred during the scan.
-
-        Parameters:
-            error (Any): The error that occurred.
-
-        Returns:
-            None
-        """
+        """Обработка ошибки скана"""
         await event.bot.edit_message(message_id=msg_id, text = f"Ошибка скана: {error}")
 
         # Remove from active scans
-        active_scans.remove(str(event.from_user.user_id))
+        user_id = str(event.from_user.user_id)
+        if user_id in active_scans:
+            active_scans.remove(user_id)
 
     # Start SSE in background
     asyncio.create_task(

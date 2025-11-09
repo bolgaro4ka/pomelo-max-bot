@@ -15,7 +15,6 @@ By Bolgaro4ka / 2025
 import asyncio
 import logging
 import os
-import json
 
 # External modules
 from dotenv import load_dotenv
@@ -28,7 +27,7 @@ from maxapi.enums.parse_mode import ParseMode
 
 # Internal modules
 import messages
-import pomelo
+from pomelo_service import PomeloService
 import handlers
 
 # Load environment variables
@@ -40,6 +39,9 @@ logging.basicConfig(level=logging.INFO)
 # Create bot and dispatcher
 bot : Bot = Bot(str(os.getenv('API_KEY')))
 dp : Dispatcher = Dispatcher()
+
+# Create Pomelo service
+pomelo_service = PomeloService()
 
 active_scans = []  # user_id -> scan in progress
 
@@ -106,48 +108,34 @@ async def menu(event: MessageCreated) -> None:
 
 @dp.message_created(F.message.body.attachments)
 async def image(event: MessageCreated) -> None:
-    """
-    Image handler
-    """
+    """Image handler"""
     # Get image from user message (if image > 1, take the first one)
     image = event.message.body.attachments[0].payload.url
 
     # Send image scan to Pomelo API
-    res = await pomelo.send_scan(image)
+    res = await pomelo_service.createPhotoScan(image)
     scan_id = res["scan"]["id"]
 
     # Fetch and show scan
-    await handlers.fetch_and_show_scan(event, scan_id, active_scans)
+    await handlers.fetch_and_show_scan(event, scan_id, active_scans, pomelo_service)
 
 
 @dp.message_created(F.message.body.text)
 async def echo(event: MessageCreated) -> None:
-    """
-    Text handler
-    """
+    """Text handler"""
     # Get text from user
     text = event.message.body.text
 
     # Send text scan to Pomelo API
-    res = await pomelo.send_text(text)
+    res = await pomelo_service.createTextScan(text)
     scan_id = res["scan"]["id"]
 
     # Fetch and show scan
-    await handlers.fetch_and_show_scan(event, scan_id, active_scans)
+    await handlers.fetch_and_show_scan(event, scan_id, active_scans, pomelo_service)
 
 
 async def main() -> None:
-    """
-    Asynchronously starts polling the bot for updates.
-
-    This function initializes the dispatcher `dp` and starts polling the bot for updates using the `start_polling` method. This allows the bot to receive and handle incoming messages and events.
-
-    Parameters:
-        None
-
-    Returns:
-        None
-    """
+    """Запуск polling бота"""
     await dp.start_polling(bot)
 
 
