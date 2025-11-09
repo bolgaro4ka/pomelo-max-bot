@@ -1,7 +1,7 @@
 """
-Pomelo API wrapper
+Pomelo API async wrapper
 
-This module provides functions for interacting with the Pomelo API.
+This module provides async functions for interacting with the Pomelo API.
 
 Functions:
 
@@ -12,14 +12,14 @@ Functions:
 By Bolgaro4ka / 2025
 """
 
-
-import requests
 import os
+import aiohttp
+import asyncio
 
-# Pomelo API
 BASE_API = 'https://pomelo.colorbit.ru'
 
-def send_scan(image : str) -> requests.Response:
+
+async def send_scan(image: str) -> aiohttp.ClientResponse:
     """
     Sends a scan request to the Pomelo API with the given image.
 
@@ -27,23 +27,28 @@ def send_scan(image : str) -> requests.Response:
         image (str): The URL of the image to be scanned.
 
     Returns:
-        requests.Response: The response object containing the result of the scan request.
+        aiohttp.ClientResponse: The response object containing the result of the scan request.
     """
-    img = requests.get(image).content
+    token = os.getenv("API_POMELO")
 
-    res = requests.post(
-        f'{BASE_API}/api/scans',
-        headers={'Authorization': f'Bearer {os.getenv("API_POMELO")}'},
-        files={
-            'photo': ('image.jpg', img, 'image/jpeg'),
-        },
-        data={
-            'type': 'food'
-        }
-    )
-    return res
+    async with aiohttp.ClientSession() as session:
+        # Download image
+        async with session.get(image) as img_resp:
+            img_bytes = await img_resp.read()
 
-def send_text(text : str) -> requests.Response:
+        form = aiohttp.FormData()
+        form.add_field('photo', img_bytes, filename='image.jpg', content_type='image/jpeg')
+        form.add_field('type', 'food')
+
+        async with session.post(
+            f'{BASE_API}/api/scans',
+            headers={'Authorization': f'Bearer {token}'},
+            data=form
+        ) as resp:
+            return await resp.json()
+
+
+async def send_text(text: str) -> aiohttp.ClientResponse:
     """
     Sends a text request to the Pomelo API with the given text.
 
@@ -51,19 +56,23 @@ def send_text(text : str) -> requests.Response:
         text (str): The text to be sent.
 
     Returns:
-        requests.Response: The response object containing the result of the request.
+        aiohttp.ClientResponse: The response object containing the result of the request.
     """
-    res = requests.post(
-        f'{BASE_API}/api/scans',
-        headers={'Authorization': f'Bearer {os.getenv("API_POMELO")}'},
-        data={
-            "composition": text,
-            'type': 'food'
-        }
-    )
-    return res
+    token = os.getenv("API_POMELO")
 
-def get_scan(id : str) -> requests.Response:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f'{BASE_API}/api/scans',
+            headers={'Authorization': f'Bearer {token}'},
+            data={
+                "composition": text,
+                "type": "food",
+            }
+        ) as resp:
+            return await resp.json()
+
+
+async def get_scan(id: str) -> aiohttp.ClientResponse:
     """
     Retrieves a scan from the Pomelo API by its ID.
 
@@ -71,11 +80,13 @@ def get_scan(id : str) -> requests.Response:
         id (str): The ID of the scan to retrieve.
 
     Returns:
-        requests.Response: The response object containing the result of the GET request.
+        aiohttp.ClientResponse: The response object containing the result of the GET request.
     """
+    token = os.getenv("API_POMELO")
 
-    res = requests.get(
-        f'{BASE_API}/api/scans/{id}',
-        headers={'Authorization': f'Bearer {os.getenv("API_POMELO")}'}
-    )
-    return res
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f'{BASE_API}/api/scans/{id}',
+            headers={'Authorization': f'Bearer {token}'}
+        ) as resp:
+            return await resp.json()

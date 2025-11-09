@@ -113,7 +113,8 @@ async def image(event: MessageCreated) -> None:
     image = event.message.body.attachments[0].payload.url
 
     # Send image scan to Pomelo API
-    scan_id=json.loads(pomelo.send_scan(image).content)["scan"]["id"]
+    res = await pomelo.send_scan(image)
+    scan_id = res["scan"]["id"]
 
     # Fetch and show scan
     await handlers.fetch_and_show_scan(event, scan_id, active_scans)
@@ -128,7 +129,8 @@ async def echo(event: MessageCreated) -> None:
     text = event.message.body.text
 
     # Send text scan to Pomelo API
-    scan_id=json.loads(pomelo.send_text(text).content)["scan"]["id"]
+    res = await pomelo.send_text(text)
+    scan_id = res["scan"]["id"]
 
     # Fetch and show scan
     await handlers.fetch_and_show_scan(event, scan_id, active_scans)

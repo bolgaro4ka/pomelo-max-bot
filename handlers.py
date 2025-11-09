@@ -46,18 +46,23 @@ async def fetch_and_show_scan(event : MessageCreated, scan_id: str, active_scans
 
     Note: The `get_scan_result` and `on_error` functions are defined within this function and are not accessible outside of it.
     """
-    # Start scan
-    bot_message = await event.bot.send_message(chat_id=event.chat.chat_id, text="Скан запущен! Ожидаем...")
 
-    # Save message id
-    msg_id = bot_message.message.body.mid
-
+    # Check if scan is already in progress
     if str(event.from_user.user_id) in active_scans:
         await event.message.answer(
             text="Скан уже идёт. Пожалуйста, подождите."
         )
         return
     
+    # Add user to active scans
+    active_scans.append(str(event.from_user.user_id))
+
+    # Start scan
+    bot_message = await event.bot.send_message(chat_id=event.chat.chat_id, text="Скан запущен! Ожидаем...")
+
+    # Save message id
+    msg_id = bot_message.message.body.mid
+
     async def get_scan_result(scan_id):
         """
         Asynchronously retrieves the scan result for a given scan ID and updates the message with the result.
@@ -70,7 +75,8 @@ async def fetch_and_show_scan(event : MessageCreated, scan_id: str, active_scans
         """
         # If scan is completed and aiAnalysis is not null -> edit previous message
         await event.bot.edit_message(message_id=msg_id, text = f"Скан {scan_id} завершён. Загружаю результат...")
-        SCAN_RESPONSE=json.loads(pomelo.get_scan(scan_id).content)["scan"]
+        res = await pomelo.get_scan(scan_id)
+        SCAN_RESPONSE = res["scan"]
 
         # If scan is not fully completed
         if not sse_listener.is_scan_fully_completed(SCAN_RESPONSE):
