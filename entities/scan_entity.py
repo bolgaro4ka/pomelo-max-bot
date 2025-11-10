@@ -77,17 +77,18 @@ class ScanEntity:
     @staticmethod
     def get_adi_image_buffer(scan_entity: "ScanEntity") -> bytes:
         """
-        Generate an ADI pie-chart image and return it as a bytes buffer (PNG format).
-
+        Generate an ADI image similar to the provided sample: thick arc, rounded ends, gradient background, big number, label, rounded square.
         Returns:
             bytes: PNG image data in memory.
         """
+        import numpy as np
+        from matplotlib.patches import FancyBboxPatch, Arc
+        from matplotlib.colors import LinearSegmentedColormap
 
-        # Get adi
         adi = scan_entity._data.get("analysis", {}).get("additivesDangerIndex", 0)
         adi = max(0, min(100, adi))
 
-        # Color
+        # Color selection (orange for 52)
         if adi < 40:
             color = "#2ecc71"
         elif adi < 70:
@@ -95,31 +96,97 @@ class ScanEntity:
         else:
             color = "#e74c3c"
 
-        # Generate image
-        fig, ax = plt.subplots(figsize=(3, 3), dpi=150)
+        # Image size
+        size = 300
+        dpi = 100
+        fig, ax = plt.subplots(figsize=(size/dpi, size/dpi), dpi=dpi)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
 
-        # Progress bar (pie)
-        ax.pie(
-            [adi, 100 - adi],
-            colors=[color, "#e0e0e0"],
-            startangle=90,
-            wedgeprops={"width": 0.25, "edgecolor": "white"}
-        )
+        # Draw rounded rectangle background with gradient
+        rect = FancyBboxPatch((0, 0), 1, 1,
+                              boxstyle="round,pad=0.04,rounding_size=0.15",
+                              linewidth=0, facecolor="#f7f3ef")
+        ax.add_patch(rect)
+        
+        # Add gradient overlay
+        gradient = np.linspace(0, 1, 256).reshape(1, -1)
+        gradient = np.vstack([gradient] * 256)
+        extent = [0, 1, 0, 1]
+        ax.imshow(gradient, extent=extent, aspect='auto', alpha=0.15, cmap='YlOrRd', zorder=0)
 
-        # Center number
-        ax.text(0, 0, str(adi), ha="center", va="center", fontsize=34, weight="bold")
+        # Arc parameters - empty side down, fills from left to right, rotated left by ~45 degrees
+        center = (0.5, 0.5)
+        radius = 0.38
+        width = 0.13
+        rotation = -45  # degrees, rotate the whole scale counter-clockwise (left by 90°)
+        total_span = 270  # degrees of the visible arc
 
-        # Label
-        ax.text(0, -1.25, "ВРЕДНОСТЬ", ha="center", fontsize=14, weight="bold")
+        # Background arc angles (rotated)
+        theta1_bg = 0 + rotation
+        theta2_bg = total_span + rotation
 
-        ax.axis("equal")
-        plt.tight_layout()
+        # Foreground (filled) angles: fill from left to right so foreground spans from
+        # the left edge towards the bottom (towards theta2_bg). Compute the left bound
+        # based on adi percent.
+        theta2_fg = theta2_bg
+        theta1_fg = theta2_bg - total_span * (adi / 100)
+
+        # Draw background arc (gray)
+        arc_bg = Arc(center, 2 * radius, 2 * radius, angle=0, theta1=theta1_bg, theta2=theta2_bg,
+                     lw=size * width, color="#ececec", capstyle='round')
+        ax.add_patch(arc_bg)
+
+        # Draw value arc (colored)
+        if adi > 0:
+            arc_fg = Arc(center, 2 * radius, 2 * radius, angle=0, theta1=theta1_fg, theta2=theta2_fg,
+                         lw=size * width, color=color, capstyle='round')
+            ax.add_patch(arc_fg)
+
+        # Draw number
+        ax.text(0.5, 0.45, str(adi), ha="center", va="center", fontsize=54, weight="bold", color="#2d2d2d")
+
+        # Draw label
+        ax.text(0.5, 0.08, "Вредность", ha="center", va="center", fontsize=18, color="#2d2d2d")
+
+        # Remove axes
+        ax.set_xticks([])
+        ax.set_yticks([])
 
         # Save to buffer
         buffer = io.BytesIO()
-        fig.savefig(buffer, format="png", bbox_inches="tight")
+        plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+        fig.savefig(buffer, format="png", bbox_inches="tight", pad_inches=0, transparent=False)
         plt.close(fig)
         buffer.seek(0)
-
         return buffer.getvalue()
 
+
+if __name__ == '__main__':
+    from pathlib import Path
+    
+    # Create test directory if it doesn't exist
+    test_dir = Path(__file__).parent.parent / "test"
+    test_dir.mkdir(exist_ok=True)
+    
+    # Create test scan data
+    test_scan = {
+        "id": "test_1",
+        "name": "Test Product",
+        "status": "completed",
+        "analysis": {
+            "additivesDangerIndex": 52
+        }
+    }
+    
+    # Create ScanEntity and generate image
+    entity = ScanEntity(test_scan)
+    image_buffer = ScanEntity.get_adi_image_buffer(entity)
+    
+    # Save to file
+    output_path = test_dir / "adi_test_52.png"
+    with open(output_path, "wb") as f:
+        f.write(image_buffer)
+    
+    print(f"Image saved to: {output_path}")
