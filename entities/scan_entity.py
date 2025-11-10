@@ -107,7 +107,7 @@ class ScanEntity:
         )
 
         # Center number
-        ax.text(0, 0, str(adi), ha="center", va="center", fontsize=28, weight="bold")
+        ax.text(0, 0, str(adi), ha="center", va="center", fontsize=34, weight="bold")
 
         # Label
         ax.text(0, -1.25, "ВРЕДНОСТЬ", ha="center", fontsize=14, weight="bold")

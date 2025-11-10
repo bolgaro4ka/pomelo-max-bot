@@ -84,7 +84,7 @@ async def _track_scan(event: MessageCreated, scan_id: str) -> None:
 
         # Prepare response
         buttons = scan_entity.get_ingredient_buttons()
-        attachments = [InputMediaBuffer(scan_entity.get_adi_image_path(scan_entity))]
+        attachments = [InputMediaBuffer(scan_entity.get_adi_image_buffer(scan_entity))]
 
         # Add buttons if links exist
         if buttons:

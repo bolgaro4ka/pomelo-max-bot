@@ -5,7 +5,9 @@ import requests
 from sseclient import SSEClient
 from typing import Dict, Any, Optional, Callable, Awaitable
 from entities.scan_entity import ScanEntity
+import dotenv
 
+dotenv.load_dotenv()
 
 class PomeloService:
     """
