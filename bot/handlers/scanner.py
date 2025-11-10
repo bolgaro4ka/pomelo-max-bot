@@ -1,5 +1,5 @@
 from maxapi import F
-from maxapi.types import MessageCreated, InputMedia
+from maxapi.types import MessageCreated, InputMediaBuffer
 from maxapi.filters.command import Command
 from maxapi.enums.parse_mode import ParseMode
 
@@ -8,7 +8,6 @@ from bot.keyboards import open_link_button_keyboard
 from bot.helpers import send_or_edit_message
 from services.pomelo_service import PomeloService
 from services.scan_tracker import ScanTracker
-from utils import get_adi_image_path
 
 
 # Create Pomelo service
@@ -85,7 +84,7 @@ async def _track_scan(event: MessageCreated, scan_id: str) -> None:
 
         # Prepare response
         buttons = scan_entity.get_ingredient_buttons()
-        attachments = [InputMedia(get_adi_image_path(scan_entity))]
+        attachments = [InputMediaBuffer(scan_entity.get_adi_image_path(scan_entity))]
 
         # Add buttons if links exist
         if buttons:

@@ -83,30 +83,50 @@ def get_progress_bar_msg(status: str) -> str:
 
     return progress_bar
 
-# TODO: Я бы сюда все 4 части сообщения запихал бы и возвращал бы кортеж из 4 строк,
-# чтобы всё лежало в одном месте
-# И как-нибудь по-аккуратнее эти строки генерировать, а том массив, строка \n, join, цикл, условия, константы, ЧТОООО тут происходит)
 def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
     """
     Generate a list of messages representing the scan result.
     """
 
-    # Check if at least one link exists
-    AT_LEAST_ONE_LINK_EXISTS_FLAG = False
-    for ingredient in scan_entity.ingredients:
-        if ingredient.get("referenceUrl"):
-            AT_LEAST_ONE_LINK_EXISTS_FLAG = True
-            break
+    data = scan_entity._data or {}
 
-    # Get data from entity
-    # TODO в текстовом скане выводится **** вместо Без названия. Почини пж
-    name = scan_entity._data.get("name", "Без названия")
-    allergens = scan_entity._data.get("analysis", {}).get("allergens", [])
+    # Name
+    name = data.get("name") or "Без названия"
+    if name.strip("* "):
+        name = name.strip()
+    else:
+        name = "Без названия"
+
+    # Аллергены
+    allergens = data.get("analysis", {}).get("allergens", [])
+    if allergens:
+        allergen_lines = [f"* {a.capitalize()}" for a in allergens]
+        allergens_block = "\n".join(allergen_lines)
+    else:
+        allergens_block = "Нет данных"
+
+    # AI analysis
     ai_analysis = scan_entity.ai_analysis or "Анализ не выполнен"
-    composition = scan_entity._data.get("composition", "Состав не указан")
 
-    # Return two strings
-    return [
-        f"**{name}**\n\n**Аллергены**\n{'\n'.join(['* ' + l[0].upper() + l[1:] for l in allergens]) if allergens else 'Нет данных'}\n\n**AI анализ**\n{ai_analysis}\n\n{'**Добавки**' if AT_LEAST_ONE_LINK_EXISTS_FLAG else ''}",
-        f"**Состав:**\n{composition}"
-    ]
+    # Check for links
+    has_additives_links = any(
+        ingr.get("referenceUrl")
+        for ingr in scan_entity.ingredients
+    )
+
+    additives_title = "**Добавки**" if has_additives_links else ""
+
+    # Components
+    composition = data.get("composition") or "Состав не указан"
+
+    # Generate messages
+    msg_left = (
+        f"**{name}**\n\n"
+        f"**Аллергены**\n{allergens_block}\n\n"
+        f"**AI анализ**\n{ai_analysis}\n\n"
+        f"{additives_title}"
+    )
+
+    msg_right = f"**Состав:**\n{composition}"
+
+    return [msg_left, msg_right]

@@ -1,4 +1,6 @@
 from typing import Optional
+import io
+import matplotlib.pyplot as plt
 
 class ScanEntity:
     """Entity class representing a product scan."""
@@ -71,3 +73,53 @@ class ScanEntity:
             buttons[button_text] = url
 
         return buttons
+    
+    @staticmethod
+    def get_adi_image_buffer(scan_entity: "ScanEntity") -> bytes:
+        """
+        Generate an ADI pie-chart image and return it as a bytes buffer (PNG format).
+
+        Returns:
+            bytes: PNG image data in memory.
+        """
+
+        # Get adi
+        adi = scan_entity._data.get("analysis", {}).get("additivesDangerIndex", 0)
+        adi = max(0, min(100, adi))
+
+        # Color
+        if adi < 40:
+            color = "#2ecc71"
+        elif adi < 70:
+            color = "#f1c40f"
+        else:
+            color = "#e74c3c"
+
+        # Generate image
+        fig, ax = plt.subplots(figsize=(3, 3), dpi=150)
+
+        # Progress bar (pie)
+        ax.pie(
+            [adi, 100 - adi],
+            colors=[color, "#e0e0e0"],
+            startangle=90,
+            wedgeprops={"width": 0.25, "edgecolor": "white"}
+        )
+
+        # Center number
+        ax.text(0, 0, str(adi), ha="center", va="center", fontsize=28, weight="bold")
+
+        # Label
+        ax.text(0, -1.25, "ВРЕДНОСТЬ", ha="center", fontsize=14, weight="bold")
+
+        ax.axis("equal")
+        plt.tight_layout()
+
+        # Save to buffer
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format="png", bbox_inches="tight")
+        plt.close(fig)
+        buffer.seek(0)
+
+        return buffer.getvalue()
+
