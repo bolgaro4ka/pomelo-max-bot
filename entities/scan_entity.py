@@ -104,22 +104,16 @@ class ScanEntity:
         ax.set_ylim(0, 1)
         ax.axis('off')
 
-        # Draw rounded rectangle background with gradient
+        # Draw rounded rectangle background (white)
         rect = FancyBboxPatch((0, 0), 1, 1,
                               boxstyle="round,pad=0.04,rounding_size=0.15",
-                              linewidth=0, facecolor="#f7f3ef")
+                              linewidth=0, facecolor="#ffffff")
         ax.add_patch(rect)
-        
-        # Add gradient overlay
-        gradient = np.linspace(0, 1, 256).reshape(1, -1)
-        gradient = np.vstack([gradient] * 256)
-        extent = [0, 1, 0, 1]
-        ax.imshow(gradient, extent=extent, aspect='auto', alpha=0.15, cmap='YlOrRd', zorder=0)
 
         # Arc parameters - empty side down, fills from left to right, rotated left by ~45 degrees
         center = (0.5, 0.5)
         radius = 0.38
-        width = 0.13
+        width = 0.1  # Reduced thickness (was 0.13)
         rotation = -45  # degrees, rotate the whole scale counter-clockwise (left by 90°)
         total_span = 270  # degrees of the visible arc
 
@@ -145,10 +139,12 @@ class ScanEntity:
             ax.add_patch(arc_fg)
 
         # Draw number
-        ax.text(0.5, 0.45, str(adi), ha="center", va="center", fontsize=54, weight="bold", color="#2d2d2d")
+        ax.text(0.5, 0.45, str(adi), ha="center", va="center", fontsize=64, weight="900", 
+                color="#2d2d2d", fontfamily='arial')
 
         # Draw label
-        ax.text(0.5, 0.08, "Вредность", ha="center", va="center", fontsize=18, color="#2d2d2d")
+        ax.text(0.5, 0.08, "Вредность", ha="center", va="center", fontsize=20, weight="bold",
+                color="#2d2d2d", fontfamily='arial')
 
         # Remove axes
         ax.set_xticks([])
