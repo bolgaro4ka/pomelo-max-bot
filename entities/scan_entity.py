@@ -107,7 +107,7 @@ class ScanEntity:
         # Draw rounded rectangle background (white)
         rect = FancyBboxPatch((0, 0), 1, 1,
                               boxstyle="round,pad=0.04,rounding_size=0.15",
-                              linewidth=0, facecolor="#ffffff")
+                              linewidth=0, facecolor="#fcfcfc")
         ax.add_patch(rect)
 
         # Arc parameters - empty side down, fills from left to right, rotated left by ~45 degrees
@@ -139,12 +139,12 @@ class ScanEntity:
             ax.add_patch(arc_fg)
 
         # Draw number
-        ax.text(0.5, 0.45, str(adi), ha="center", va="center", fontsize=64, weight="900", 
-                color="#2d2d2d", fontfamily='arial')
+        ax.text(0.5, 0.47, str(adi), ha="center", va="center", fontsize=64, weight="700", 
+                color="#1c1c28", fontfamily='arial')
 
         # Draw label
         ax.text(0.5, 0.08, "Вредность", ha="center", va="center", fontsize=20, weight="bold",
-                color="#2d2d2d", fontfamily='arial')
+                color="#1c1c28", fontfamily='arial')
 
         # Remove axes
         ax.set_xticks([])
