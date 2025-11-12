@@ -47,7 +47,7 @@ class ScanEntity:
         5: "🔴"
     }
 
-    def get_ingredient_buttons(self) -> dict[str, str]:
+    def get_ingredient_buttons(self) -> dict[str, str | None]:
         """
         Return list of buttons for ingredients with reference URLs.
         {
@@ -59,18 +59,16 @@ class ScanEntity:
 
         for ingredient in self.ingredients:
             url = ingredient.get("referenceUrl")
-            # Skip ingredients without URL
-            if not url:
-                continue
-
             name = ingredient.get("name", "Без названия")
             danger = ingredient.get("danger", -1)
+            if danger < 0:
+                danger = "?"
 
             emoji = self.DANGER_LEVEL_EMOJI.get(danger, "⚪")
             truncated_name = name if len(name) <= 20 else name[:20] + "..."
             button_text = f"{emoji} {truncated_name} {danger} из 5"
 
-            buttons[button_text] = url
+            buttons[button_text] = url  # url can be None
 
         return buttons
     
@@ -140,11 +138,11 @@ class ScanEntity:
 
         # Draw number
         ax.text(0.5, 0.47, str(adi), ha="center", va="center", fontsize=64, weight="700", 
-                color="#1c1c28", fontfamily='arial')
+                color="#1c1c28")
 
         # Draw label
         ax.text(0.5, 0.08, "Вредность", ha="center", va="center", fontsize=20, weight="bold",
-                color="#1c1c28", fontfamily='arial')
+                color="#1c1c28")
 
         # Remove axes
         ax.set_xticks([])

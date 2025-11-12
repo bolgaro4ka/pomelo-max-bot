@@ -108,3 +108,4 @@ class ScanTracker:
         # Unsubscribe from updates
         self.pomelo_service.unsubscribeFromStatusUpdates(scan_id)
         logger.info(f"Unsubscribed from scan {scan_id} updates")
+

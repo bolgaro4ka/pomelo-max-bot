@@ -69,7 +69,7 @@ def get_progress_bar_msg(status: str) -> str:
     }
 
     if status not in stages:
-        return f"Загрузка... Пожалуйста, подождите"
+        return f"🧐 **Анализирую состав** "
 
     current_step, status_text = stages[status]
     total_steps = 7
@@ -79,7 +79,8 @@ def get_progress_bar_msg(status: str) -> str:
     empty = '⬜️' * (total_steps - current_step)
     percentage = int((current_step / total_steps) * 100)
 
-    progress_bar = f"{filled}{empty} {percentage}%\n{status_text}"
+    progress_bar = f"🧐 **Анализирую состав**\n\n{filled}{empty} {percentage}%"
+#     progress_bar = f"{filled}{empty} {percentage}%\n{status_text}"
 
     return progress_bar
 
@@ -124,11 +125,11 @@ def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
     # Generate messages
     msg_left = (
         f"**{name}**\n\n"
-        f"{allergens_title}\n{allergens_block}\n\n"
-        f"**AI анализ**\n{ai_analysis}\n\n"
-        f"{additives_title}"
+        f"🌻 {allergens_title}\n{allergens_block}\n\n"
+        f"🧠 **AI анализ**\n{ai_analysis}\n\n"
+        f"🧪 {additives_title}"
     )
 
-    msg_right = f"**Состав:**\n{composition}"
+    msg_right = f"📋 **Состав:**\n{composition}"
 
     return [msg_left, msg_right]
