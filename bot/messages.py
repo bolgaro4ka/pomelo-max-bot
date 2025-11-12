@@ -97,13 +97,15 @@ def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
     else:
         name = "Без названия"
 
-    # Аллергены
+    # Allergens
     allergens = data.get("analysis", {}).get("allergens", [])
     if allergens:
         allergen_lines = [f"* {a.capitalize()}" for a in allergens]
         allergens_block = "\n".join(allergen_lines)
+        allergens_title = "**Аллергены**"
     else:
-        allergens_block = "Нет данных"
+        allergens_title = "**Аллергены не обнаружены**"
+        allergens_block = "Но мы могли ошибиться. Проверьте, пожалуйста, состав самостоятельно"
 
     # AI analysis
     ai_analysis = scan_entity.ai_analysis or "Анализ не выполнен"
@@ -122,7 +124,7 @@ def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
     # Generate messages
     msg_left = (
         f"**{name}**\n\n"
-        f"**Аллергены**\n{allergens_block}\n\n"
+        f"{allergens_title}\n{allergens_block}\n\n"
         f"**AI анализ**\n{ai_analysis}\n\n"
         f"{additives_title}"
     )
