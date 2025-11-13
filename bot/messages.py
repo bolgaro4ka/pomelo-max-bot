@@ -58,21 +58,14 @@ def get_progress_bar_msg(status: str) -> str:
     stages = {
         'recognition_pending': (0, '⏳ В очереди'),
         'recognizing': (1, '🔍 Распознавание состава'),
-        'recognized': (2, '👁 Состав распознан'),
-        'analysis_pending': (3, '⏳ Ожидание анализа'),
-        'ai_analysis_pending': (3, '⏳ Ожидание анализа'),
-        'analyzing': (4, '🧪 Анализ ингредиентов'),
-        'ai_analyzing': (4, '🧠 ИИ-нутрициолог думает'),
-        'analyzed': (5, '✅ Анализ завершен'),
-        'ai_analyzed': (5, '✅ ИИ-анализ завершен'),
-        'completed': (6, '🎉 Готово!')
+        'analyzing': (2, '🧪 Анализ ингредиентов'),
     }
 
     if status not in stages:
         return f"🧐 Анализирую состав"
 
     current_step, status_text = stages[status]
-    total_steps = 7
+    total_steps = 3
 
     # Build progress bar
     filled = '🟩' * current_step
