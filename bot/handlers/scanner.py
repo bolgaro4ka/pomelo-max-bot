@@ -68,7 +68,8 @@ async def _track_scan(event: MessageCreated, scan_id: str) -> None:
             event.bot,
             event.chat.chat_id,
             msg_id_holder,
-            progress_text
+            progress_text,
+            parse_mode=ParseMode.MARKDOWN
         )
 
     # Callback for scan completion

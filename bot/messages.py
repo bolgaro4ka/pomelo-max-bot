@@ -80,7 +80,6 @@ def get_progress_bar_msg(status: str) -> str:
     percentage = int((current_step / total_steps) * 100)
 
     progress_bar = f"🧐 Анализирую состав\n\n{filled}{empty} {percentage}%"
-#     progress_bar = f"{filled}{empty} {percentage}%\n{status_text}"
 
     return progress_bar
 
@@ -119,7 +118,7 @@ def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
         f"**{name}**\n\n"
         f"🌻 {allergens_title}\n{allergens_block}\n\n"
         f"🧠 **AI анализ**\n{ai_analysis}\n\n"
-        f"🧪 **Добавки**"
+        f"🧪 **Добавки**" 
     )
 
     msg_right = f"📋 **Состав:**\n{composition}"
