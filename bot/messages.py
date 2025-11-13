@@ -69,7 +69,7 @@ def get_progress_bar_msg(status: str) -> str:
     }
 
     if status not in stages:
-        return f"🧐 **Анализирую состав** "
+        return f"🧐 Анализирую состав"
 
     current_step, status_text = stages[status]
     total_steps = 7
@@ -79,7 +79,7 @@ def get_progress_bar_msg(status: str) -> str:
     empty = '⬜️' * (total_steps - current_step)
     percentage = int((current_step / total_steps) * 100)
 
-    progress_bar = f"🧐 **Анализирую состав**\n\n{filled}{empty} {percentage}%"
+    progress_bar = f"🧐 Анализирую состав\n\n{filled}{empty} {percentage}%"
 #     progress_bar = f"{filled}{empty} {percentage}%\n{status_text}"
 
     return progress_bar
@@ -111,14 +111,6 @@ def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
     # AI analysis
     ai_analysis = scan_entity.ai_analysis or "Анализ не выполнен"
 
-    # Check for links
-    has_additives_links = any(
-        ingr.get("referenceUrl")
-        for ingr in scan_entity.ingredients
-    )
-
-    additives_title = "**Добавки**" if has_additives_links else ""
-
     # Components
     composition = data.get("composition") or "Состав не указан"
 
@@ -127,7 +119,7 @@ def get_scan_msg(scan_entity: ScanEntity) -> list[str]:
         f"**{name}**\n\n"
         f"🌻 {allergens_title}\n{allergens_block}\n\n"
         f"🧠 **AI анализ**\n{ai_analysis}\n\n"
-        f"🧪 {additives_title}"
+        f"🧪 **Добавки**"
     )
 
     msg_right = f"📋 **Состав:**\n{composition}"
