@@ -48,7 +48,7 @@ class ScanEntity:
     }
 
     @staticmethod
-    def _text_to_slug(text: str) -> str:
+    def text_to_slug(text: str) -> str:
         """
         Convert text to slug: lowercase, replace spaces with hyphens,
         remove special characters, escape for URL.
@@ -70,14 +70,16 @@ class ScanEntity:
         """
         Return list of buttons for ingredients with reference URLs.
         {
-            "🟡 Кальций 2 из 5": "https://example.com?ingredient=kaltciy",
-            "🔴 Бензоат натрия 5 из 5": "https://...?ingredient=benzoat-natriya"
+            "🟡 Кальций 2 из 5": "https://example.com",
+            "🔴 Бензоат натрия 5 из 5": "https://..."
         }
         """
         buttons = {}
 
         for ingredient in self.ingredients:
             url = ingredient.get("referenceUrl")
+            if not url:
+                continue
             name = ingredient.get("name", "Без названия")
             danger = ingredient.get("danger", -1)
             if danger < 0:
@@ -86,12 +88,6 @@ class ScanEntity:
             emoji = self.DANGER_LEVEL_EMOJI.get(danger, "⚪")
             truncated_name = name if len(name) <= 20 else name[:20] + "..."
             button_text = f"{emoji} {truncated_name} {danger} из 5"
-
-            # Add slug to URL if URL exists
-            if url:
-                slug = self._text_to_slug(name)
-                separator = "&" if "?" in url else "?"
-                url = f"{url}{separator}ingredient={slug}"
 
             buttons[button_text] = url  # url can be None
 
