@@ -15,7 +15,7 @@ def open_link_button_keyboard(links: dict[str, str | None]) -> InlineKeyboardBui
     builder = InlineKeyboardBuilder()
     for name, link in links.items():
         # Get url or generate it (but truncate excess from name first and last 7 chars)
-        url = link if link else f"https://proe.info/ru/search?text={ScanEntity.text_to_slug(' '.join(name.split(' ')[1:-3]))}"
+        url = link if link else f"https://proe.info/ru/search?text={ScanEntity.text_to_slug(' '.join(name.split(' ')[1:-3]).replace('...', ''))}"
         builder.row(
             LinkButton(
                 text=name,
