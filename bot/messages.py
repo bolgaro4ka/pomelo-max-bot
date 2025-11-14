@@ -62,7 +62,7 @@ def get_progress_bar_msg(status: str) -> str:
     }
 
     if status not in stages:
-        return f"🧐 Анализирую состав"
+        return ""
 
     current_step, status_text = stages[status]
     total_steps = 8

@@ -111,7 +111,7 @@ class ScanEntity:
         # Arc parameters - empty side down, fills from left to right, rotated left by ~45 degrees
         center = (0.5, 0.5)
         radius = 0.38
-        width = 0.07  # Reduced thickness (was 0.13)
+        width = 0.073  # Reduced thickness (was 0.13)
         rotation = -45  # degrees, rotate the whole scale counter-clockwise (left by 90°)
         total_span = 270  # degrees of the visible arc
 

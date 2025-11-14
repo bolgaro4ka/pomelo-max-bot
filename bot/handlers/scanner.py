@@ -64,13 +64,16 @@ async def _track_scan(event: MessageCreated, scan_id: str) -> None:
     async def on_status(status: str, scan_entity) -> None:
         """Handle non-terminal status updates"""
         progress_text = messages.get_progress_bar_msg(status)
-        await send_or_edit_message(
-            event.bot,
-            event.chat.chat_id,
-            msg_id_holder,
-            progress_text,
-            parse_mode=ParseMode.MARKDOWN
-        )
+
+        # Send message only if there's new status
+        if len(progress_text) > 0:
+            await send_or_edit_message(
+                event.bot,
+                event.chat.chat_id,
+                msg_id_holder,
+                progress_text,
+                parse_mode=ParseMode.MARKDOWN
+            )
 
     # Callback for scan completion
     async def on_complete(scan_entity) -> None:
