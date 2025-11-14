@@ -6,14 +6,20 @@ using the free public API for food analysis.
 Chat with the bot here:
 https://max.ru/t48_hakaton_bot
 
+PRESENTATION: [ПРЕЗЕНТАЦИЯ.pdf](./PRESENTATION.pdf)
+Or via link: https://disk.yandex.ru/i/rXUBZVICPCsrfA
 
 ### Prerequisites
+**Windows:** 
 Setup WSL 2 (for example Ubuntu) and install Docker. In setting select WSL 2 integration with Ubuntu.
 WSL 2 + Docker setup guide: https://dev.to/kristarking/setting-up-docker-on-windows-with-wsl2-3cje
 
+**Ubuntu & MacOS**:
+You can install just Docker Desktop
+
 ### Installation
 
-1. Clone repository
+1. Clone repository (inside WSL folder for Windows)
 ```bash
 git clone https://github.com/bolgaro4ka/pomelo-max-bot.git ./pomelo-max-bot
 cd pomelo-max-bot
@@ -31,3 +37,20 @@ docker compose up --build
 ```bash
 docker compose -f docker-compose.prod.yml up --build
 ```
+
+### Local development
+```bash
+python -m venv venv
+.venv/Scripts/activate
+pip install -r requirements.txt
+python main.py
+```
+
+### Project structure
+/assets - static files: images, gifs, videos, etc.
+
+/bot - interaction with MAX Bot API: listen events, send messages, keyboards, etc.
+
+/entities - classes for working with data: Scan data model, etc.
+
+/services - business logic: image processing, working with external APIs, etc.
