@@ -47,12 +47,31 @@ class ScanEntity:
         5: "🔴"
     }
 
+    @staticmethod
+    def _text_to_slug(text: str) -> str:
+        """
+        Convert text to slug: lowercase, replace spaces with hyphens,
+        remove special characters, escape for URL.
+        """
+        import re
+        # Convert to lowercase
+        slug = text.lower()
+        # Replace spaces and underscores with hyphens
+        slug = re.sub(r'[\s_]+', '-', slug)
+        # Remove special characters except hyphens
+        slug = re.sub(r'[^a-z0-9-]', '', slug)
+        # Remove multiple consecutive hyphens
+        slug = re.sub(r'-+', '-', slug)
+        # Strip hyphens from start and end
+        slug = slug.strip('-')
+        return slug
+
     def get_ingredient_buttons(self) -> dict[str, str | None]:
         """
         Return list of buttons for ingredients with reference URLs.
         {
-            "🟡 Кальций 2 из 5": "https://example.com",
-            "🔴 Бензоат натрия 5 из 5": "https://..."
+            "🟡 Кальций 2 из 5": "https://example.com?ingredient=kaltciy",
+            "🔴 Бензоат натрия 5 из 5": "https://...?ingredient=benzoat-natriya"
         }
         """
         buttons = {}
@@ -67,6 +86,12 @@ class ScanEntity:
             emoji = self.DANGER_LEVEL_EMOJI.get(danger, "⚪")
             truncated_name = name if len(name) <= 20 else name[:20] + "..."
             button_text = f"{emoji} {truncated_name} {danger} из 5"
+
+            # Add slug to URL if URL exists
+            if url:
+                slug = self._text_to_slug(name)
+                separator = "&" if "?" in url else "?"
+                url = f"{url}{separator}ingredient={slug}"
 
             buttons[button_text] = url  # url can be None
 
