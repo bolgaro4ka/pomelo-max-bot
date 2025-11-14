@@ -119,9 +119,9 @@ class ScanEntity:
         else:
             color = "#e74c3c"
 
-        # Image size
-        size = 300
-        dpi = 100
+        # Image size - increased for better quality
+        size = 600
+        dpi = 120
         fig, ax = plt.subplots(figsize=(size/dpi, size/dpi), dpi=dpi)
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
@@ -136,7 +136,7 @@ class ScanEntity:
         # Arc parameters - empty side down, fills from left to right, rotated left by ~45 degrees
         center = (0.5, 0.5)
         radius = 0.38
-        width = 0.1  # Reduced thickness (was 0.13)
+        width = 0.073  # Reduced thickness (was 0.13)
         rotation = -45  # degrees, rotate the whole scale counter-clockwise (left by 90°)
         total_span = 270  # degrees of the visible arc
 
@@ -162,11 +162,11 @@ class ScanEntity:
             ax.add_patch(arc_fg)
 
         # Draw number
-        ax.text(0.5, 0.47, str(adi), ha="center", va="center", fontsize=64, weight="700", 
+        ax.text(0.5, 0.47, str(adi), ha="center", va="center", fontsize=72, weight="700",
                 color="#1c1c28")
 
         # Draw label
-        ax.text(0.5, 0.08, "Вредность", ha="center", va="center", fontsize=20, weight="bold",
+        ax.text(0.5, 0.08, "Вредность", ha="center", va="center", fontsize=36, weight="bold",
                 color="#1c1c28")
 
         # Remove axes

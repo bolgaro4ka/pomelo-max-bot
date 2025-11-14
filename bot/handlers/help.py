@@ -16,3 +16,11 @@ def register_help_handlers(dp):
             parse_mode=ParseMode.MARKDOWN
         )
 
+    @dp.message_created(Command("menu"))
+    async def help_cmd(event: MessageCreated) -> None:
+        """Handles /menu command"""
+        await event.message.answer(
+            text=messages.HELP_MSG,
+            parse_mode=ParseMode.MARKDOWN
+        )
+

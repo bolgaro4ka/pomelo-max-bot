@@ -57,15 +57,15 @@ def get_progress_bar_msg(status: str) -> str:
     # Define progress stages
     stages = {
         'recognition_pending': (0, '⏳ В очереди'),
-        'recognizing': (1, '🔍 Распознавание состава'),
-        'analyzing': (2, '🧪 Анализ ингредиентов'),
+        'recognizing': (3, '🔍 Распознавание состава'),
+        'analyzing': (6, '🧪 Анализ ингредиентов'),
     }
 
     if status not in stages:
-        return f"🧐 Анализирую состав"
+        return ""
 
     current_step, status_text = stages[status]
-    total_steps = 3
+    total_steps = 8
 
     # Build progress bar
     filled = '🟩' * current_step
