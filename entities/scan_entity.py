@@ -58,8 +58,7 @@ class ScanEntity:
         slug = text.lower()
         # Replace spaces and underscores with hyphens
         slug = re.sub(r'[\s_]+', '-', slug)
-        # Remove special characters except hyphens
-        slug = re.sub(r'[^a-z0-9-]', '', slug)
+
         # Remove multiple consecutive hyphens
         slug = re.sub(r'-+', '-', slug)
         # Strip hyphens from start and end
