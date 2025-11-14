@@ -94,9 +94,9 @@ class ScanEntity:
         else:
             color = "#e74c3c"
 
-        # Image size
-        size = 300
-        dpi = 100
+        # Image size - increased for better quality
+        size = 600
+        dpi = 120
         fig, ax = plt.subplots(figsize=(size/dpi, size/dpi), dpi=dpi)
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
